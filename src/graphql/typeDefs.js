@@ -1,29 +1,64 @@
-const { gql} = require('apollo-server');
+const {
+    exec
+} = require('child_process');
+const axios = require('axios');
+const fs = require('fs');
 
-module.exports = gql`
-# Query to fetch user information
-type Query {
-  # Fetch the currently authenticated user
-  currentUser: User
+// Define the URL of the /latest-type-definitions endpoint in Service 2
+const service2TypeDefs = 'https://github.com/Timonaire/MongodbService/blob/main/src/graphql/typeDefs.js';
+
+// Function to fetch and save the latest type definitions
+async function fetchAndSaveLatestTypeDefinitions() {
+    try {
+        // Fetch the latest type definitions from Service 2
+        const response = await axios.get(service2TypeDefs
+        );
+
+        // Save the downloaded type definitions in Service 1
+        const typeDefs = response.data;
+        fs.writeFileSync('./latestTypeDefs.js', typeDefs, 'utf8');
+
+        console.log('Latest type definitions saved successfully.');
+    } catch (error) {
+        console.error('Error fetching or saving latest type definitions:', error.message);
+    }
 }
 
+// Deploy Service 1
+function deployService1() {
+    console.log('Deploying Service 1...');
 
-# Mutation for user Signup and login
-type Mutation {
-  signup(id: ID!, email: String!, password: String!): AuthPayload
-  login(email: String!, password: String!): AuthPayload
+    // Add deployment command
+
+    exec('npm install', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error during npm install: ${error.message}`);
+            return;
+        }
+
+        console.log(`npm install stdout: ${stdout}`);
+        console.error(`npm install stderr: ${stderr}`);
+
+        // After successful installation, fetch and save the latest type definitions
+        fetchAndSaveLatestTypeDefinitions();
+
+        // Start service
+        exec('npm start', (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error during npm start: ${error.message}`);
+                return;
+            }
+
+            console.log(`npm start stdout: ${stdout}`);
+            console.error(`npm start stderr: ${stderr}`);
+            console.log('Service 1 deployment completed.');
+        });
+    });
 }
 
-# User type representing a user in the system
-type User {
-  id: ID!
-  email: String!
-  password: String!
+// Call the deployment function
+deployService1();
+module.exports = {
+    fetchAndSaveLatestTypeDefinitions,
+    deployService1
 }
-
-# Authentication type
-type AuthPayload {
-  token: String
-  user: User
-}
-`
