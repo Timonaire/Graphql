@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User } = require('./models'); // Replace with your actual User model import
+const { User } = require('./typeDefs');
 const APP_SECRET = require('../utils')
 
 const resolvers = {
@@ -17,7 +17,7 @@ const resolvers = {
 
   Mutation: {
     // Mutation for user Signup
-    signup: async (_, { username, email, password }) => {
+    signup: async (_, {email, password }) => {
       try {
         // Check if a user with the provided email already exists
         const existingUser = await User.findOne({ email });

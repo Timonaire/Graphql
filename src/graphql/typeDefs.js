@@ -1,3 +1,6 @@
+const { gql} = require('apollo-server');
+
+module.exports = gql`
 # Query to fetch user information
 type Query {
   # Fetch the currently authenticated user
@@ -23,3 +26,4 @@ type AuthPayload {
   token: String
   user: User
 }
+`
