@@ -17,7 +17,7 @@ const resolvers = {
 
   Mutation: {
     // Mutation for user Signup
-    signup: async (_, {email, password }) => {
+    signup: async (_, {username, email, password }) => {
       try {
         // Check if a user with the provided email already exists
         const existingUser = await User.findOne({ email });
@@ -30,6 +30,7 @@ const resolvers = {
 
         // Create a new user
         const newUser = new User({
+          username,
           email,
           password: hashedPassword,
         });
